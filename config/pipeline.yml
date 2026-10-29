@@ -1,0 +1,31 @@
+# Réglages du pipeline AfriMacro.
+# Pour ajouter un pays ou un indicateur, modifie ce fichier : pas besoin de toucher au code.
+
+base_url: https://api.worldbank.org/v2
+per_page: 1000
+data_dir: data
+
+period:
+  start: 1990
+  end: null   # null = année en cours
+
+# Codes pays ISO3 (Afrique de l'Ouest)
+countries: [CIV, GHA, NGA, SEN, MLI, BFA, NER, BEN, TGO, GIN, SLE, LBR, GMB, GNB, CPV]
+
+# code de l'indicateur: libellé
+indicators:
+  NY.GDP.MKTP.CD: PIB (dollars courants)
+  NY.GDP.MKTP.KD.ZG: Croissance annuelle du PIB (%)
+  NY.GDP.PCAP.CD: PIB par habitant (dollars courants)
+  FP.CPI.TOTL.ZG: Inflation, prix à la consommation (%)
+  SL.UEM.TOTL.ZS: Chômage (% de la population active, estimation OIT)
+  NE.EXP.GNFS.ZS: Exportations de biens et services (% du PIB)
+  NE.IMP.GNFS.ZS: Importations de biens et services (% du PIB)
+  BN.CAB.XOKA.GD.ZS: Solde du compte courant (% du PIB)
+  BX.KLT.DINV.WD.GD.ZS: Investissements directs étrangers entrants nets (% du PIB)
+  DT.DOD.DECT.GN.ZS: Dette extérieure (% du RNB)
+  FS.AST.PRVT.GD.ZS: Crédit intérieur au secteur privé (% du PIB)
+  SP.POP.TOTL: Population totale
+  SP.DYN.LE00.IN: Espérance de vie à la naissance (années)
+  EG.ELC.ACCS.ZS: Accès à l'électricité (% de la population)
+  IT.NET.USER.ZS: Utilisateurs d'Internet (% de la population)
