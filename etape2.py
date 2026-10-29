@@ -12,7 +12,7 @@ response.raise_for_status()
 payload = response.json()
 
 collected_at = datetime.now(timezone.utc)
-stamp = collected_at.strftime("%Y%m%dT%H%M%SZ")
+stamp = collected_at.strftime("%Y%m%dT%H%M%S%fZ")
 
 path = Path("data/bronze/worldbank/SP.POP.TOTL") / f"{stamp}.json"
 path.parent.mkdir(parents=True, exist_ok=True)
@@ -25,7 +25,7 @@ record = {
     "payload": payload,
 }
 
-with open(path, "w", encoding="utf-8") as file:
+with open(path, "x", encoding="utf-8") as file:
     json.dump(record, file, ensure_ascii=False)
 
 print("Écrit :", path)
