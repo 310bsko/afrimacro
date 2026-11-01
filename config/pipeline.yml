@@ -29,3 +29,10 @@ indicateurs:
   SP.DYN.LE00.IN: Espérance de vie à la naissance (années)
   EG.ELC.ACCS.ZS: Accès à l'électricité (% de la population)
   IT.NET.USER.ZS: Utilisateurs d'Internet (% de la population)
+  
+  
+# Paramètres de la couche gold
+gold:
+  fenetre_debut: 2015     # première année retenue pour les moyennes
+  fenetre_fin: 2024       # dernière année retenue (2025 est encore peu publiée)
+  seuil_couverture: 0.70  # part minimale d'années renseignées pour qu'une moyenne soit jugée fiable
