@@ -1,19 +1,19 @@
 # Réglages du pipeline AfriMacro.
 # Pour ajouter un pays ou un indicateur, modifie ce fichier : pas besoin de toucher au code.
 
-base_url: https://api.worldbank.org/v2
-per_page: 1000
-data_dir: data
+url_base: https://api.worldbank.org/v2
+par_page: 1000
+dossier_donnees: donnees
 
-period:
-  start: 1990
-  end: null   # null = année en cours
+periode:
+  debut: 1990
+  fin: null   # null = année en cours
 
 # Codes pays ISO3 (Afrique de l'Ouest)
-countries: [CIV, GHA, NGA, SEN, MLI, BFA, NER, BEN, TGO, GIN, SLE, LBR, GMB, GNB, CPV]
+pays: [CIV, GHA, NGA, SEN, MLI, BFA, NER, BEN, TGO, GIN, SLE, LBR, GMB, GNB, CPV]
 
 # code de l'indicateur: libellé
-indicators:
+indicateurs:
   NY.GDP.MKTP.CD: PIB (dollars courants)
   NY.GDP.MKTP.KD.ZG: Croissance annuelle du PIB (%)
   NY.GDP.PCAP.CD: PIB par habitant (dollars courants)
