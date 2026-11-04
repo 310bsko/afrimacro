@@ -25,9 +25,10 @@ plus_recent_d_abord = Window.partitionBy("code_indicateur").orderBy(F.col("date_
 derniere_collecte = brut.withColumn("rang", F.dense_rank().over(plus_recent_d_abord)).filter("rang = 1")
 
 # 3. Une ligne par page, puis une ligne par observation
-pages = derniere_collecte.select("date_collecte", F.explode("pages").alias("page"))
+pages = derniere_collecte.select("date_collecte", "libelle_indicateur", F.explode("pages").alias("page"))
 lignes = pages.select(
     "date_collecte",
+    "libelle_indicateur",
     F.from_json(F.col("page")[0], SCHEMA_META).alias("meta"),
     F.explode(F.from_json(F.col("page")[1], SCHEMA_LIGNES)).alias("observation"),
 )
@@ -37,7 +38,7 @@ silver = lignes.select(
     F.col("observation.countryiso3code").alias("code_pays"),
     F.col("observation.country.value").alias("nom_pays"),
     F.col("observation.indicator.id").alias("code_indicateur"),
-    F.col("observation.indicator.value").alias("libelle_indicateur"),
+    F.col("libelle_indicateur"),   # libellé français de la configuration, conservé dans le bronze
     F.col("observation.date").cast("int").alias("annee"),
     F.col("observation.value").alias("valeur"),
     F.lit("banque_mondiale").alias("source"),
