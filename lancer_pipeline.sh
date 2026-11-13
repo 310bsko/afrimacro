@@ -7,3 +7,4 @@ uv run silver_spark.py
 uv run controles_qualite.py
 uv run gold_spark.py
 uv run --env-file .env chargement_entrepot.py
+uv run --env-file .env exporter_instantane.py
