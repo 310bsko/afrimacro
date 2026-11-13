@@ -104,6 +104,12 @@ colonne_2.metric("Dernière mise à jour de la source", f"{observations['source_
 st.subheader(f"Évolution : {indicateur}")
 figure = px.line(donnees, x="annee", y="valeur", color="nom_pays", markers=True,
                  labels={"annee": "Année", "valeur": "Valeur", "nom_pays": "Pays"})
+# Graduation de l'axe des années : un repère par an. Étiquette chaque année si la période est courte,
+# sinon tous les 5 ans (36 étiquettes de 4 chiffres ne tiennent pas sur un écran, surtout un téléphone).
+nb_annees = periode[1] - periode[0] + 1
+figure.update_xaxes(tickformat="d", dtick=1 if nb_annees <= 12 else 5)
+if nb_annees > 12:
+    figure.update_xaxes(minor=dict(dtick=1, ticks="outside", ticklen=4, showgrid=False))
 st.plotly_chart(adapter_au_mobile(figure), width="stretch", config=CONFIG_GRAPHIQUE)
 st.caption("Les valeurs manquantes sont laissées vides : elles ne sont jamais comblées ni inventées.")
 st.dataframe(resumer_pays(donnees), hide_index=True, width="stretch")
