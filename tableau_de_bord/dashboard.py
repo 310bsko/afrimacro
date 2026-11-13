@@ -41,6 +41,23 @@ def resumer_pays(donnees):
     return pd.DataFrame(lignes)
 
 
+CONFIG_GRAPHIQUE = {"displayModeBar": False}  # pas de barre d'outils : elle gêne au doigt
+
+
+def adapter_au_mobile(figure, hauteur=400):
+    """Graphique lisible sur téléphone : légende sous le graphique, marges réduites, et ni zoom ni
+    glissement (le doigt fait défiler la page au lieu de déplacer le graphique)."""
+    figure.update_layout(
+        height=hauteur,
+        margin=dict(l=10, r=10, t=20, b=10),
+        legend=dict(orientation="h", yanchor="top", y=-0.2, xanchor="left", x=0),
+        dragmode=False,
+    )
+    figure.update_xaxes(fixedrange=True, automargin=True)
+    figure.update_yaxes(fixedrange=True, automargin=True)
+    return figure
+
+
 try:
     observations, origine = lire_observations()
 except FileNotFoundError as erreur:
@@ -48,7 +65,8 @@ except FileNotFoundError as erreur:
     st.stop()
 groupes = lire_groupes()
 
-st.title("AfriMacro : indicateurs économiques de l'Afrique de l'Ouest")
+st.title("AfriMacro")
+st.markdown("**Indicateurs économiques de l'Afrique de l'Ouest**")
 st.caption(
     "Source : Banque mondiale, Indicators API v2 (licence CC BY 4.0 sauf mention contraire). "
     f"Données annuelles. Origine des données affichées : {origine}."
@@ -59,13 +77,17 @@ indicateurs = sorted(observations["libelle_indicateur"].unique())
 noms_pays = sorted(observations["nom_pays"].unique())
 pays_par_defaut = [nom for nom in ("Cote d'Ivoire", "Ghana", "Senegal") if nom in noms_pays] or noms_pays[:3]
 
-indicateur = st.sidebar.selectbox("Indicateur", indicateurs)
-pays_choisis = st.sidebar.multiselect("Pays", noms_pays, default=pays_par_defaut)
 annee_min, annee_max = int(observations["annee"].min()), int(observations["annee"].max())
-periode = st.sidebar.slider("Période", annee_min, annee_max, (annee_min, annee_max))
+
+# Filtres dans la page, et non dans la barre latérale : sur téléphone, elle est cachée derrière une petite flèche.
+with st.expander("Filtres : indicateur, pays, période", expanded=True):
+    colonne_indicateur, colonne_pays = st.columns(2)
+    indicateur = colonne_indicateur.selectbox("Indicateur", indicateurs)
+    pays_choisis = colonne_pays.multiselect("Pays", noms_pays, default=pays_par_defaut)
+    periode = st.slider("Période", annee_min, annee_max, (annee_min, annee_max))
 
 if not pays_choisis:
-    st.warning("Choisis au moins un pays dans la barre latérale.")
+    st.warning("Choisis au moins un pays dans les filtres.")
     st.stop()
 
 indicateur_complet = observations[observations["libelle_indicateur"] == indicateur]
@@ -74,16 +96,15 @@ donnees = indicateur_complet[
 ]
 
 # --- Indicateurs clés
-colonne_1, colonne_2, colonne_3 = st.columns(3)
-colonne_1.metric("Pays sélectionnés", len(pays_choisis))
-colonne_2.metric("Dernière collecte des données", f"{observations['date_collecte'].max():%d/%m/%Y}")
-colonne_3.metric("Dernière mise à jour de la source", f"{observations['source_mise_a_jour'].max():%d/%m/%Y}")
+colonne_1, colonne_2 = st.columns(2)
+colonne_1.metric("Dernière collecte des données", f"{observations['date_collecte'].max():%d/%m/%Y}")
+colonne_2.metric("Dernière mise à jour de la source", f"{observations['source_mise_a_jour'].max():%d/%m/%Y}")
 
 # --- Graphique 1 : évolution
 st.subheader(f"Évolution : {indicateur}")
 figure = px.line(donnees, x="annee", y="valeur", color="nom_pays", markers=True,
                  labels={"annee": "Année", "valeur": "Valeur", "nom_pays": "Pays"})
-st.plotly_chart(figure, width="stretch")
+st.plotly_chart(adapter_au_mobile(figure), width="stretch", config=CONFIG_GRAPHIQUE)
 st.caption("Les valeurs manquantes sont laissées vides : elles ne sont jamais comblées ni inventées.")
 st.dataframe(resumer_pays(donnees), hide_index=True, width="stretch")
 
@@ -100,7 +121,8 @@ figure_classement = px.bar(
     color="groupe" if groupes is not None else None,
     labels={"valeur": "Valeur", "nom_pays": "Pays", "groupe": "Groupe"},
 )
-st.plotly_chart(figure_classement, width="stretch")
+hauteur_classement = max(320, 26 * len(classement) + 60)  # une barre par pays
+st.plotly_chart(adapter_au_mobile(figure_classement, hauteur_classement), width="stretch", config=CONFIG_GRAPHIQUE)
 nb_sans_valeur = indicateur_complet["code_pays"].nunique() - len(classement)
 if nb_sans_valeur:
     st.caption(f"{nb_sans_valeur} pays sans valeur pour {annee_classement}.")
@@ -115,7 +137,9 @@ echelle_log = st.checkbox("Échelle logarithmique", value=False)
 sur_la_periode = observations[observations["annee"].between(*periode)]
 moyennes = (sur_la_periode.pivot_table(index=["code_pays", "nom_pays"], columns="libelle_indicateur",
                                        values="valeur", aggfunc="mean").reset_index())
-if indicateur_x in moyennes.columns and indicateur_y in moyennes.columns:
+if indicateur_x == indicateur_y:  # deux colonnes de même nom feraient échouer le graphique
+    st.info("Choisis deux indicateurs différents pour comparer les pays.")
+elif indicateur_x in moyennes.columns and indicateur_y in moyennes.columns:
     profil = moyennes[["code_pays", "nom_pays", indicateur_x, indicateur_y]].dropna()
     if groupes is not None:
         profil = profil.merge(groupes, on="code_pays", how="left")
@@ -126,7 +150,7 @@ if indicateur_x in moyennes.columns and indicateur_y in moyennes.columns:
         log_x=echelle_log, log_y=echelle_log, labels={"groupe": "Groupe"},
     )
     figure_profil.update_traces(textposition="top center")
-    st.plotly_chart(figure_profil, width="stretch")
+    st.plotly_chart(adapter_au_mobile(figure_profil, 450), width="stretch", config=CONFIG_GRAPHIQUE)
     st.caption(f"Moyennes de {periode[0]} à {periode[1]}. Pays sans valeur pour l'un des deux indicateurs : non affichés.")
 
 # --- Méthodologie et limites
