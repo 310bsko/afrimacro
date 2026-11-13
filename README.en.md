@@ -8,7 +8,7 @@ An end-to-end data platform on West African economic indicators. It collects Wor
 
 Personal portfolio project in Data Engineering and Cloud Computing (Master 2 ID2C, ESATIC).
 
-**Live dashboard: <URL_DU_DASHBOARD>**
+**Live dashboard: https://afrimacro-indicateur.streamlit.app/**
 
 ## What it does
 

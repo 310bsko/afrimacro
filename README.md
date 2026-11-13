@@ -8,7 +8,7 @@ Plateforme de données de bout en bout sur les indicateurs économiques de l'Afr
 
 Projet personnel de portfolio en ingénierie des données et cloud computing (Master 2 ID2C, ESATIC).
 
-**Dashboard en ligne : <URL_DU_DASHBOARD>**
+**Dashboard en ligne : https://afrimacro-indicateur.streamlit.app/**
 
 ## Ce que fait le projet
 
