@@ -42,6 +42,10 @@ def resumer_pays(donnees):
 
 
 CONFIG_GRAPHIQUE = {"displayModeBar": False}  # pas de barre d'outils : elle gêne au doigt
+# Un groupe garde la même couleur partout. Sans cette table, Plotly attribue les couleurs dans l'ordre d'apparition
+# des groupes dans les données, donc elles changent selon l'indicateur ou l'année choisis.
+COULEURS_GROUPES = {"1": "#0068C9", "2": "#FF8700", "3": "#29B09D"}
+ORDRE_GROUPES = {"groupe": ["1", "2", "3"]}
 
 
 def adapter_au_mobile(figure, hauteur=400):
@@ -125,6 +129,7 @@ if groupes is not None:
 figure_classement = px.bar(
     classement.sort_values("valeur"), x="valeur", y="nom_pays", orientation="h",
     color="groupe" if groupes is not None else None,
+    color_discrete_map=COULEURS_GROUPES, category_orders=ORDRE_GROUPES,
     labels={"valeur": "Valeur", "nom_pays": "Pays", "groupe": "Groupe"},
 )
 hauteur_classement = max(320, 26 * len(classement) + 60)  # une barre par pays
@@ -153,6 +158,7 @@ elif indicateur_x in moyennes.columns and indicateur_y in moyennes.columns:
     figure_profil = px.scatter(
         profil, x=indicateur_x, y=indicateur_y, text="code_pays",
         color="groupe" if groupes is not None else None,
+        color_discrete_map=COULEURS_GROUPES, category_orders=ORDRE_GROUPES,
         log_x=echelle_log, log_y=echelle_log, labels={"groupe": "Groupe"},
     )
     figure_profil.update_traces(textposition="top center")
